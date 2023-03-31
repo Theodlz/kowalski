@@ -15,6 +15,12 @@ def test(use_docker=False):
 
     test_setups = [
         {
+            "part": "GCN alert broker components",
+            "container": "kowalski_ingester_1",
+            "test_script": "test_alert_broker_gcn.py",
+            "flaky": False,
+        },
+        {
             "part": "TURBO alert broker components",
             "container": "kowalski_ingester_1",
             "test_script": "test_alert_broker_turbo.py",
