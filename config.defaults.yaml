@@ -341,23 +341,21 @@ kowalski:
         - name: dateobs
           fields:
             - ["dateobs", -1]
-          unique: true
-
-      GCN_alerts_aux:
-        - name: center_dateobs
-          fields:
-            - ["center", "2dsphere"]
-            - ["dateobs", -1]
           unique: false
-        - name: contour50_dateobs
+        - name: dateobs_center
           fields:
-            - ["contour50", "2dsphere"]
             - ["dateobs", -1]
+            - ["localization.center", "2dsphere"]
           unique: false
-        - name: contour90_dateobs
+        - name: dateobs_contour50
           fields:
-            - ["contour90", "2dsphere"]
             - ["dateobs", -1]
+            - ["localization.contour50", "2dsphere"]
+          unique: false
+        - name: dateobs_contour90
+          fields:
+            - ["dateobs", -1]
+            - ["localization.contour90", "2dsphere"]
           unique: false
 
     filters:
@@ -762,6 +760,14 @@ kowalski:
             zMeanPSFMagErr: 1
             yMeanPSFMag: 1
             yMeanPSFMagErr: 1
+
+        GCN_alerts:
+          type: "localization"
+          contour: "contour90"
+          filter: {}
+          projection:
+            _id: 1
+            dateobs: 1
 
       PGIR:
         2MASS_PSC:

@@ -1,5 +1,4 @@
 import os
-import traceback
 from urllib.parse import urlparse
 
 import astropy.units as u
@@ -17,9 +16,6 @@ from astropy.coordinates import ICRS, SkyCoord
 from astropy.table import Table
 from astropy.time import Time
 from astropy_healpix import HEALPix, nside_to_level, pixel_resolution_to_nside
-from shapely import get_parts, multipolygons
-from shapely.geometry import MultiLineString
-from shapely.ops import polygonize
 
 
 def get_trigger(root):
@@ -289,48 +285,18 @@ def get_contour(skymap):
         }
     ] + [
         {
-            "type": "MultiLineString",
+            "type": "MultiPolygon",
             "properties": {"credible_level": level},
             # path is gonna be a list of lists of coordinates (lon, lat)
             # we remove 180 from the longitude to make it work with mongo
-            # 'coordinates': [[[e[0]-180, e[1]] for e in line] for line in path]
-            "coordinates": path,
+            "coordinates": [[[[e[0] - 180, e[1]] for e in line]] for line in path]
+            # "coordinates": path,
         }
         for level, path in zip(levels, paths)
     ]
 
-    # for each geometries that is a MultiLineString, we need to convert to a Polygon instead
-    # for i, geometry in enumerate(contours):
-    #     if geometry["type"] != 'MultiLineString':
-    #         continue
-
-    # polygon = Polygon(geometry['coordinates'][0])
-    # for line in geometry['coordinates'][1:]:
-    #     polygon = polygon.difference(MultiLineString(line).buffer(0))
-    # #contour['geometries'][i]['coordinates'] = [[[e[0]-180, e[1]] for e in line] for line in polygon.exterior.coords]
-    # coords = list(polygon.exterior.coords)
-    # coords = [[e[0]-180, e[1]] for e in coords]
-    # contours[i]['coordinates'] = [coords]
-    # # save the coordinates to disk
-    # with open('polygon_coords.txt', 'w') as f:
-    #     f.write(str(contours[i]['coordinates']))
-    # contours[i]['type'] = 'Polygon'
-
-    for i, geometry in enumerate(contours):
-        if geometry["type"] != "MultiLineString":
-            continue
-        try:
-            multilinestring = MultiLineString(geometry["coordinates"])
-            polygons = multipolygons(get_parts(polygonize(multilinestring)))
-            contours[i]["coordinates"] = [
-                [[[e[0] - 180, e[1]] for e in line]]
-                for line in [
-                    list(polygon.exterior.coords) for polygon in polygons.geoms
-                ]
-            ]
-            contours[i]["type"] = "MultiPolygon"
-        except Exception as e:
-            print(e)
-            print(traceback.format_exc())
+    # save the 90 contour to file
+    with open("contour_coords.txt", "w") as f:
+        f.write(str(contours[1]["coordinates"]))
 
     return contours
