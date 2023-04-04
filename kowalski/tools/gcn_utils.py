@@ -274,7 +274,7 @@ def get_contour(skymap):
     cls = 100 * ligo.skymap.postprocess.find_greedy_credible_levels(prob)
 
     # Construct contours and return as a GeoJSON feature collection.
-    levels = [50, 90]
+    levels = [95]
     paths = ligo.skymap.postprocess.contour(cls, levels, degrees=True, simplify=True)
     center = ligo.skymap.postprocess.posterior_max(prob)
     contours = [
@@ -294,9 +294,5 @@ def get_contour(skymap):
         }
         for level, path in zip(levels, paths)
     ]
-
-    # save the 90 contour to file
-    with open("contour_coords.txt", "w") as f:
-        f.write(str(contours[1]["coordinates"]))
 
     return contours
