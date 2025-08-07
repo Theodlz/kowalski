@@ -536,9 +536,7 @@ class UserTokenHandler(BaseHandler):
                 ):
                     payload = {
                         "user_id": username,
-                        "created_at": datetime.datetime.utcnow().strftime(
-                            "%Y-%m-%dT%H:%M:%S.%f+00:00"
-                        ),
+                        "iat": datetime.datetime.utcnow().timestamp(),
                     }
                     # optionally set expiration date
                     if request.app["JWT"]["JWT_EXP_DELTA_SECONDS"] is not None:
@@ -547,7 +545,7 @@ class UserTokenHandler(BaseHandler):
                             + datetime.timedelta(
                                 seconds=request.app["JWT"]["JWT_EXP_DELTA_SECONDS"]
                             )
-                        ).strftime("%Y-%m-%dT%H:%M:%S.%f+00:00")
+                        ).timestamp()
                     jwt_token = jwt.encode(
                         payload=payload,
                         key=request.app["JWT"]["JWT_SECRET"],
